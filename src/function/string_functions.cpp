@@ -220,5 +220,19 @@ uint32_t StringFunctions::Length(
   return length;
 }
 
+char *StringFunctions::Upper(UNUSED_ATTRIBUTE executor::ExecutorContext &ctx,
+                             const char *str, const uint32_t length) {
+  PL_ASSERT(str != nullptr);
+
+  // Allocate new memory
+  auto *pool = ctx.GetPool();
+  auto *new_str = reinterpret_cast<char *>(pool->Allocate(length));
+
+  for (uint32_t i = 0; i != length; ++i) {
+    new_str[i] = toupper(str[i]);
+  }
+  return new_str;
+}
+
 }  // namespace function
 }  // namespace peloton

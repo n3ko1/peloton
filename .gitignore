@@ -312,3 +312,6 @@ third_party/gflags/
 
 # Test output file logs to ignore
 stats_log
+
+# VS Code
+.vscode

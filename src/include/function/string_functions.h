@@ -81,6 +81,12 @@ class StringFunctions {
                      const uint32_t length);
 
   static type::Value _Upper(const std::vector<type::Value> &args);
+
+  // Lower will transform the input str into all-lowercase
+  static char *Lower(executor::ExecutorContext &ctx, const char *str,
+                     const uint32_t length);
+
+  static type::Value _Lower(const std::vector<type::Value> &args);
 };
 
 }  // namespace function

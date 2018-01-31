@@ -371,5 +371,27 @@ TEST_F(StringFunctionsTests, UpperTest) {
   EXPECT_TRUE(result.IsNull());
 }
 
+TEST_F(StringFunctionsTests, LowerTest) {
+  const char column_char = '0';
+  std::string str = "";
+  std::string expected = "";
+
+  // Test alphanumeric strings of increasing length
+  for (int i = 0; i < 74; i++) {
+    expected += tolower(column_char + i);
+    str += (column_char + i);
+
+    auto result = function::StringFunctions::Lower(GetExecutorContext(),
+                                                   str.c_str(), str.length());
+    EXPECT_FALSE(result == nullptr);
+    EXPECT_EQ(expected, std::string(result, str.length()));
+  }
+  // NULL CHECK
+  std::vector<type::Value> args = {
+      type::ValueFactory::GetNullValueByType(type::TypeId::VARCHAR)};
+  auto result = function::StringFunctions::_Lower(args);
+  EXPECT_TRUE(result.IsNull());
+}
+
 }  // namespace test
 }  // namespace peloton

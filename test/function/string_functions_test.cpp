@@ -17,8 +17,8 @@
 #include "common/harness.h"
 
 #include "executor/executor_context.h"
-#include "function/string_functions.h"
 #include "function/old_engine_string_functions.h"
+#include "function/string_functions.h"
 
 using ::testing::NotNull;
 using ::testing::Return;
@@ -347,6 +347,28 @@ TEST_F(StringFunctionsTests, CodegenSubstrTest) {
                                           message.length(), from, len);
   EXPECT_EQ(0, res.length);
   EXPECT_EQ(nullptr, res.str);
+}
+
+TEST_F(StringFunctionsTests, UpperTest) {
+  const char column_char = '0';
+  std::string str = "";
+  std::string expected = "";
+
+  // Test alphanumeric strings of increasing length
+  for (int i = 0; i < 74; i++) {
+    expected += toupper(column_char + i);
+    str += (column_char + i);
+
+    auto result = function::StringFunctions::Upper(GetExecutorContext(),
+                                                   str.c_str(), str.length());
+    EXPECT_FALSE(result == nullptr);
+    EXPECT_EQ(expected, std::string(result, str.length()));
+  }
+  // NULL CHECK
+  std::vector<type::Value> args = {
+      type::ValueFactory::GetNullValueByType(type::TypeId::VARCHAR)};
+  auto result = function::StringFunctions::_Upper(args);
+  EXPECT_TRUE(result.IsNull());
 }
 
 }  // namespace test

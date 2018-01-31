@@ -13,6 +13,7 @@
 #pragma once
 
 #include <cstdint>
+#include "type/value.h"
 
 namespace peloton {
 
@@ -76,8 +77,10 @@ class StringFunctions {
                          uint32_t length);
 
   // Upper will transform the input str into all-uppercase
-  static char *Upper(executor::ExecutorContext &ctx,
-                     const char *str, const uint32_t length);
+  static char *Upper(executor::ExecutorContext &ctx, const char *str,
+                     const uint32_t length);
+
+  static type::Value _Upper(const std::vector<type::Value> &args);
 };
 
 }  // namespace function

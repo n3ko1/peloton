@@ -28,6 +28,7 @@
 #include "function/date_functions.h"
 #include "function/decimal_functions.h"
 #include "function/old_engine_string_functions.h"
+#include "function/string_functions.h"
 #include "function/timestamp_functions.h"
 #include "index/index_factory.h"
 #include "storage/storage_manager.h"
@@ -1038,7 +1039,13 @@ void Catalog::InitializeFunctions() {
           function::BuiltInFuncType{OperatorId::Like,
                                     function::OldEngineStringFunctions::Like},
           txn);
-
+    // Upper
+      AddBuiltinFunction(
+          "upper", {type::TypeId::VARCHAR},
+          type::TypeId::VARCHAR, internal_lang, "Upper",
+          function::BuiltInFuncType{OperatorId::Upper,
+                                    function::StringFunctions::_Upper},
+          txn);
       /**
        * decimal functions
        */

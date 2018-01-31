@@ -11,6 +11,7 @@
 //===----------------------------------------------------------------------===//
 
 #include "function/string_functions.h"
+#include "type/value_factory.h"
 
 #include "common/macros.h"
 #include "executor/executor_context.h"
@@ -220,8 +221,8 @@ uint32_t StringFunctions::Length(
   return length;
 }
 
-char *StringFunctions::Upper(UNUSED_ATTRIBUTE executor::ExecutorContext &ctx,
-                             const char *str, const uint32_t length) {
+char *StringFunctions::Upper(executor::ExecutorContext &ctx, const char *str,
+                             const uint32_t length) {
   PL_ASSERT(str != nullptr);
 
   // Allocate new memory
@@ -232,6 +233,19 @@ char *StringFunctions::Upper(UNUSED_ATTRIBUTE executor::ExecutorContext &ctx,
     new_str[i] = toupper(str[i]);
   }
   return new_str;
+}
+
+type::Value StringFunctions::_Upper(const std::vector<type::Value> &args) {
+  PL_ASSERT(args.size() == 1);
+  if (args[0].IsNull()) {
+    return type::ValueFactory::GetNullValueByType(type::TypeId::VARCHAR);
+  }
+
+  executor::ExecutorContext ctx{nullptr};
+  char *ret = StringFunctions::Upper(ctx, args[0].GetAs<const char *>(),
+                                     args[0].GetLength());
+
+  return type::ValueFactory::GetVarcharValue(ret);
 }
 
 }  // namespace function

@@ -1066,6 +1066,7 @@ enum class OperatorId : uint32_t {
   RTrim,
   BTrim,
   Trim,
+  Upper,
   Sqrt,
   Ceil,
   Round,

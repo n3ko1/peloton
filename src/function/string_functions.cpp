@@ -275,12 +275,11 @@ type::Value StringFunctions::_Lower(const std::vector<type::Value> &args) {
   return type::ValueFactory::GetVarcharValue(ret);
 }
 
-StrWithLen StringFunctions::Concat(executor::ExecutorContext &ctx,
-                                   const char **concat_strings,
-                                   const uint32_t *concat_lengths,
-                                   const uint32_t num_strings) {
+StringFunctions::StrWithLen StringFunctions::Concat(
+    executor::ExecutorContext &ctx, const char **concat_strings,
+    const uint32_t *concat_lengths, const uint32_t num_strings) {
   uint32_t target_size = 0;
-  for (auto i = 0; i != num_strings; ++i) {
+  for (uint32_t i = 0; i != num_strings; ++i) {
     target_size += concat_lengths[i];
   }
 
@@ -289,16 +288,29 @@ StrWithLen StringFunctions::Concat(executor::ExecutorContext &ctx,
   auto *new_str = reinterpret_cast<char *>(pool->Allocate(target_size));
 
   PL_MEMCPY(new_str, concat_strings[0], concat_lengths[0]);
-  for (auto i = 1; i != num_strings; ++i) {
+  for (uint32_t i = 1; i != num_strings; ++i) {
     PL_MEMCPY((new_str + concat_lengths[i - 1]), concat_strings[i],
               concat_lengths[i]);
   }
 
-  return StrWithLen(new_str, target_size);
+  return StringFunctions::StrWithLen{new_str, target_size};
 }
 
-static type::Value StringFunctions::_Concat(
-    const std::vector<type::Value> &args) {}
+type::Value StringFunctions::_Concat(const std::vector<type::Value> &args) {
+  PL_ASSERT(args.size() == 2);
+  if (args[0].IsNull() || args[1].IsNull()) {
+    return type::ValueFactory::GetNullValueByType(type::TypeId::VARCHAR);
+  }
+
+  executor::ExecutorContext ctx{nullptr};
+  const char *concat_strings[2] = {args[0].GetAs<const char *>(),
+                                   args[1].GetAs<const char *>()};
+  const uint32_t concat_lengths[2] = {args[0].GetLength(), args[1].GetLength()};
+  StringFunctions::StrWithLen ret =
+      StringFunctions::Concat(ctx, concat_strings, concat_lengths, 2);
+
+  return type::ValueFactory::GetVarcharValue(ret.str, ret.length);
+}
 
 }  // namespace function
 }  // namespace peloton

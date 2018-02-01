@@ -248,5 +248,57 @@ type::Value StringFunctions::_Upper(const std::vector<type::Value> &args) {
   return type::ValueFactory::GetVarcharValue(ret);
 }
 
+char *StringFunctions::Lower(executor::ExecutorContext &ctx, const char *str,
+                             const uint32_t length) {
+  PL_ASSERT(str != nullptr);
+
+  // Allocate new memory
+  auto *pool = ctx.GetPool();
+  auto *new_str = reinterpret_cast<char *>(pool->Allocate(length));
+
+  for (uint32_t i = 0; i != length; ++i) {
+    new_str[i] = tolower(str[i]);
+  }
+  return new_str;
+}
+
+type::Value StringFunctions::_Lower(const std::vector<type::Value> &args) {
+  PL_ASSERT(args.size() == 1);
+  if (args[0].IsNull()) {
+    return type::ValueFactory::GetNullValueByType(type::TypeId::VARCHAR);
+  }
+
+  executor::ExecutorContext ctx{nullptr};
+  char *ret = StringFunctions::Lower(ctx, args[0].GetAs<const char *>(),
+                                     args[0].GetLength());
+
+  return type::ValueFactory::GetVarcharValue(ret);
+}
+
+StrWithLen StringFunctions::Concat(executor::ExecutorContext &ctx,
+                                   const char **concat_strings,
+                                   const uint32_t *concat_lengths,
+                                   const uint32_t num_strings) {
+  uint32_t target_size = 0;
+  for (auto i = 0; i != num_strings; ++i) {
+    target_size += concat_lengths[i];
+  }
+
+  // Allocate memory for target string
+  auto *pool = ctx.GetPool();
+  auto *new_str = reinterpret_cast<char *>(pool->Allocate(target_size));
+
+  PL_MEMCPY(new_str, concat_strings[0], concat_lengths[0]);
+  for (auto i = 1; i != num_strings; ++i) {
+    PL_MEMCPY((new_str + concat_lengths[i - 1]), concat_strings[i],
+              concat_lengths[i]);
+  }
+
+  return StrWithLen(new_str, target_size);
+}
+
+static type::Value StringFunctions::_Concat(
+    const std::vector<type::Value> &args) {}
+
 }  // namespace function
 }  // namespace peloton

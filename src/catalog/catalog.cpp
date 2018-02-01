@@ -1046,6 +1046,13 @@ void Catalog::InitializeFunctions() {
           function::BuiltInFuncType{OperatorId::Upper,
                                     function::StringFunctions::_Upper},
           txn);
+      // Lower
+      AddBuiltinFunction(
+          "lower", {type::TypeId::VARCHAR},
+          type::TypeId::VARCHAR, internal_lang, "Lower",
+          function::BuiltInFuncType{OperatorId::Lower,
+                                    function::StringFunctions::_Lower},
+          txn);
       /**
        * decimal functions
        */

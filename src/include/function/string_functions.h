@@ -81,6 +81,21 @@ class StringFunctions {
                      const uint32_t length);
 
   static type::Value _Upper(const std::vector<type::Value> &args);
+
+  // Lower will transform the input str into all-lowercase
+  static char *Lower(executor::ExecutorContext &ctx, const char *str,
+                     const uint32_t length);
+
+  static type::Value _Lower(const std::vector<type::Value> &args);
+
+  // Concat takes an arbitrary number of strings and returns one concatenated
+  // string
+  static StrWithLen Concat(executor::ExecutorContext &ctx,
+                           const char **concat_strings,
+                           const uint32_t *concat_lengths,
+                           const uint32_t num_strings);
+
+  static type::Value _Concat(const std::vector<type::Value> &args);
 };
 
 }  // namespace function

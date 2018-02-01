@@ -27,6 +27,7 @@ DEFINE_METHOD(peloton::function, StringFunctions, Length);
 DEFINE_METHOD(peloton::function, StringFunctions, Substr);
 DEFINE_METHOD(peloton::function, StringFunctions, Repeat);
 DEFINE_METHOD(peloton::function, StringFunctions, Upper);
+DEFINE_METHOD(peloton::function, StringFunctions, Lower);
 
 // Trim-related functions
 DEFINE_METHOD(peloton::function, StringFunctions, BTrim);

@@ -208,6 +208,27 @@ struct Upper : public TypeSystem::UnaryOperatorHandleNull {
   }
 };
 
+// Lower
+struct Lower : public TypeSystem::UnaryOperatorHandleNull {
+  bool SupportsType(const Type &type) const override {
+    return type.GetSqlType() == Varchar::Instance();
+  }
+
+  Type ResultType(UNUSED_ATTRIBUTE const Type &val_type) const override {
+    return Varchar::Instance();
+  }
+
+  Value Impl(CodeGen &codegen, const Value &val,
+             const TypeSystem::InvocationContext &ctx) const override {
+    llvm::Value *executor_ctx = ctx.executor_context;
+    llvm::Value *ret =
+        codegen.Call(StringFunctionsProxy::Lower,
+                     {executor_ctx, val.GetValue(), val.GetLength()});
+                     
+    return Value{Varchar::Instance(), ret, val.GetLength()};
+  }
+};
+
 ////////////////////////////////////////////////////////////////////////////////
 ///
 /// Binary operators

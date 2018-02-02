@@ -291,9 +291,11 @@ StringFunctions::StrWithLen StringFunctions::Concat(
   auto *new_str = reinterpret_cast<char *>(pool->Allocate(target_size));
 
   PL_MEMCPY(new_str, concat_strings[0], concat_lengths[0]);
+  auto head = new_str;
   for (uint32_t i = 1; i != num_strings; ++i) {
-    // move back pointer by one to overwrite null byte of previous string
-    PL_MEMCPY((new_str + concat_lengths[i - 1] - 1), concat_strings[i],
+    // move head forward by length of previous string and back by one to overwrite null byte of previous string
+    head = head + concat_lengths[i - 1] - 1;
+    PL_MEMCPY(head, concat_strings[i],
               concat_lengths[i]);
   }
 

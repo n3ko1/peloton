@@ -280,8 +280,11 @@ StringFunctions::StrWithLen StringFunctions::Concat(
     const uint32_t *concat_lengths, const uint32_t num_strings) {
   uint32_t target_size = 0;
   for (uint32_t i = 0; i != num_strings; ++i) {
-    target_size += concat_lengths[i];
+    // length includes null byte
+    target_size += concat_lengths[i] - 1;
   }
+  // make room for single null byte
+  ++target_size;
 
   // Allocate memory for target string
   auto *pool = ctx.GetPool();
@@ -289,7 +292,8 @@ StringFunctions::StrWithLen StringFunctions::Concat(
 
   PL_MEMCPY(new_str, concat_strings[0], concat_lengths[0]);
   for (uint32_t i = 1; i != num_strings; ++i) {
-    PL_MEMCPY((new_str + concat_lengths[i - 1]), concat_strings[i],
+    // move back pointer by one to overwrite null byte of previous string
+    PL_MEMCPY((new_str + concat_lengths[i - 1] - 1), concat_strings[i],
               concat_lengths[i]);
   }
 

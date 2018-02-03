@@ -281,8 +281,13 @@ StringFunctions::StrWithLen StringFunctions::Concat(
   uint32_t target_size = 0;
   for (uint32_t i = 0; i != num_strings; ++i) {
     // length includes null byte
-    target_size += concat_lengths[i] - 1;
+    if (concat_lengths[i] > 0) target_size += (concat_lengths[i] - 1);
   }
+  // stop if empty string
+  if (target_size == 0) {
+    return StringFunctions::StrWithLen{"", 1}; // length 1 for null byte
+  }
+
   // make room for single null byte
   ++target_size;
 
@@ -293,11 +298,12 @@ StringFunctions::StrWithLen StringFunctions::Concat(
   PL_MEMCPY(new_str, concat_strings[0], concat_lengths[0]);
   auto head = new_str;
   for (uint32_t i = 1; i != num_strings; ++i) {
-    // move head forward by length of previous string and back by one to overwrite null byte of previous string
+    // move head forward by length of previous string and back by one to
+    // overwrite null byte of previous string
     head = head + concat_lengths[i - 1] - 1;
-    PL_MEMCPY(head, concat_strings[i],
-              concat_lengths[i]);
+    PL_MEMCPY(head, concat_strings[i], concat_lengths[i] - 1);
   }
+  new_str[target_size - 1] = '\0';
 
   return StringFunctions::StrWithLen{new_str, target_size};
 }
